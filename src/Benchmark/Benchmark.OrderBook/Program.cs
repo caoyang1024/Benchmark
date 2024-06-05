@@ -20,78 +20,45 @@ public class Program
 [MemoryDiagnoser]
 public class OrderBookTest
 {
-    public const int Levels = 20;
-    public const decimal Mid = 999.99m;
+    public const int Levels = 200;
+    public const int Low = 100;
+    public const int High = 10000;
+    public const int Mid = (Low + High) / 2;
 
-    [Benchmark]
-    public void TestArrayOrderBook()
+    public decimal[] Bids = new decimal[Levels];
+    public decimal[] Asks = new decimal[Levels];
+
+    [GlobalSetup]
+    public void Setup()
     {
-        ArrayOrderBook orderBook = new(Levels);
-        decimal shift = 0.5m;
-
         for (int i = 0; i < Levels; i++)
         {
-            orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - shift, decimal.One));
-            orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + shift, decimal.One));
-
-            shift += 0.5m;
+            Bids[i] = Random.Shared.Next(Low, Mid);
+            Asks[i] = Random.Shared.Next(Mid, High);
         }
-
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 1.0m, 0.0m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 1.0m, 0.0m));
-
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 15.0m, 0.1m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 15.0m, 0.1m));
-
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 3.0m, 0.0m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 3.0m, 0.0m));
-
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 16.0m, 0.1m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 16.0m, 0.1m));
-
-        //foreach (var (price, quantity) in orderBook.Asks)
-        //{
-        //    Console.WriteLine($"\t\t\t\t{price}\t\t\t{quantity}");
-        //}
-        //foreach (var (price, quantity) in orderBook.Bids)
-        //{
-        //    Console.WriteLine($"{price}\t\t\t{quantity}");
-        //}
     }
 
     [Benchmark]
-    public void TestSortedListOrderBook()
+    public void TestArrayOrderBookInsert()
     {
-        SortedListOrderBook orderBook = new();
-        decimal shift = 0.5m;
+        ArrayOrderBook orderBook = new(Levels);
 
         for (int i = 0; i < Levels; i++)
         {
-            orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - shift, decimal.One));
-            orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + shift, decimal.One));
-
-            shift += 0.5m;
+            orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Bids[i], decimal.One));
+            orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Asks[i], decimal.One));
         }
+    }
 
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 1.0m, 0.0m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 1.0m, 0.0m));
+    [Benchmark]
+    public void TestSortedListOrderBookInsert()
+    {
+        SortedListOrderBook orderBook = new();
 
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 15.0m, 0.1m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 15.0m, 0.1m));
-
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 3.0m, 0.0m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 3.0m, 0.0m));
-
-        orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Mid - 16.0m, 0.1m));
-        orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Mid + 16.0m, 0.1m));
-
-        //foreach (var (price, quantity) in orderBook.Asks)
-        //{
-        //    Console.WriteLine($"\t\t\t\t{price}\t\t\t{quantity}");
-        //}
-        //foreach (var (price, quantity) in orderBook.Bids)
-        //{
-        //    Console.WriteLine($"{price}\t\t\t{quantity}");
-        //}
+        for (int i = 0; i < Levels; i++)
+        {
+            orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Bids[i], decimal.One));
+            orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Asks[i], decimal.One));
+        }
     }
 }
