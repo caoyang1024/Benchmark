@@ -8,9 +8,17 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        //OrderBookTest test = new();
-        //test.TestArrayOrderBook();
-        //test.TestSortedListOrderBook();
+        OrderBookTest test = new();
+
+        test.Setup();
+
+        test.TestArrayOrderBookInsert();
+        test.TestArrayOrderBookUpdate();
+        var arr = test.TestArrayOrderBookDelete();
+
+        test.TestSortedListOrderBookInsert();
+        test.TestSortedListOrderBookUpdate();
+        var sl = test.TestSortedListOrderBookDelete();
 
         BenchmarkDotNet.Running.BenchmarkRunner.Run<OrderBookTest>();
     }
@@ -28,6 +36,9 @@ public class OrderBookTest
     public decimal[] Bids = new decimal[Levels];
     public decimal[] Asks = new decimal[Levels];
 
+    private readonly ArrayOrderBook _arrayOrderBook = new(Levels);
+    private readonly SortedListOrderBook _sortedListOrderBook = new();
+
     [GlobalSetup]
     public void Setup()
     {
@@ -41,24 +52,90 @@ public class OrderBookTest
     [Benchmark]
     public void TestArrayOrderBookInsert()
     {
-        ArrayOrderBook orderBook = new(Levels);
-
         for (int i = 0; i < Levels; i++)
         {
-            orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Bids[i], decimal.One));
-            orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Asks[i], decimal.One));
+            _arrayOrderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Bids[i], decimal.One));
+            _arrayOrderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Asks[i], decimal.One));
         }
     }
 
     [Benchmark]
     public void TestSortedListOrderBookInsert()
     {
-        SortedListOrderBook orderBook = new();
-
         for (int i = 0; i < Levels; i++)
         {
-            orderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Bids[i], decimal.One));
-            orderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Asks[i], decimal.One));
+            _sortedListOrderBook.Update(OrderBookSide.Bid, new OrderBookLevel(Bids[i], decimal.One));
+            _sortedListOrderBook.Update(OrderBookSide.Ask, new OrderBookLevel(Asks[i], decimal.One));
         }
+    }
+
+    [Benchmark]
+    public void TestArrayOrderBookUpdate()
+    {
+        for (int i = 0; i < Levels; i++)
+        {
+            var b = Bids[i];
+
+            _arrayOrderBook.Update(OrderBookSide.Bid, new OrderBookLevel(b, 5.9m));
+
+            var a = Asks[i];
+
+            _arrayOrderBook.Update(OrderBookSide.Ask, new OrderBookLevel(a, 51.9m));
+        }
+    }
+
+    [Benchmark]
+    public void TestSortedListOrderBookUpdate()
+    {
+        for (int i = 0; i < Levels; i++)
+        {
+            var b = Bids[i];
+
+            _sortedListOrderBook.Update(OrderBookSide.Bid, new OrderBookLevel(b, 5.9m));
+
+            var a = Asks[i];
+
+            _sortedListOrderBook.Update(OrderBookSide.Ask, new OrderBookLevel(a, 51.9m));
+        }
+    }
+
+    [Benchmark]
+    public ArrayOrderBook TestArrayOrderBookDelete()
+    {
+        for (int i = 0; i < Levels; i++)
+        {
+            if (i % 2 == 0)
+            {
+                var b = Bids[i];
+
+                _arrayOrderBook.Update(OrderBookSide.Bid, new OrderBookLevel(b, 0.0m));
+
+                var a = Asks[i];
+
+                _arrayOrderBook.Update(OrderBookSide.Ask, new OrderBookLevel(a, 0.0m));
+            }
+        }
+
+        return _arrayOrderBook;
+    }
+
+    [Benchmark]
+    public SortedListOrderBook TestSortedListOrderBookDelete()
+    {
+        for (int i = 0; i < Levels; i++)
+        {
+            if (i % 2 == 0)
+            {
+                var b = Bids[i];
+
+                _sortedListOrderBook.Update(OrderBookSide.Bid, new OrderBookLevel(b, 0.0m));
+
+                var a = Asks[i];
+
+                _sortedListOrderBook.Update(OrderBookSide.Ask, new OrderBookLevel(a, 0.0m));
+            }
+        }
+
+        return _sortedListOrderBook;
     }
 }

@@ -33,13 +33,9 @@ public class SortedListOrderBook
         {
             list.Remove(level.Price);
         }
-        else if (list.TryGetValue(level.Price, out var price))
-        {
-            price.Quantity = level.Quantity;
-        }
         else
         {
-            list.Add(level.Price, level);
+            list[level.Price] = level;
         }
     }
 }

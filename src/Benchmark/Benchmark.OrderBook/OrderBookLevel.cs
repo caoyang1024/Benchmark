@@ -7,7 +7,7 @@ public record struct OrderBookLevel(decimal Price, decimal Quantity) : IComparab
 {
     public decimal Price { get; } = Price;
 
-    public int CompareTo(OrderBookLevel other)
+    public readonly int CompareTo(OrderBookLevel other)
     {
         return Price.CompareTo(other.Price);
     }
