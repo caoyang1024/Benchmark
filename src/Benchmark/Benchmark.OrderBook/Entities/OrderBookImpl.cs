@@ -170,8 +170,6 @@ public enum OrderBookSide
     Ask
 }
 
-public readonly record struct OrderBookLevel(decimal Price, decimal Quantity);
-
 public sealed class OrderBookSnapshot(IReadOnlyList<OrderBookLevel> bids, IReadOnlyList<OrderBookLevel> asks)
 {
     public IReadOnlyList<OrderBookLevel> Bids { get; } = bids;

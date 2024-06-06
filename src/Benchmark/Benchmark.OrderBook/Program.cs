@@ -10,7 +10,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        BenchmarkDotNet.Running.BenchmarkRunner.Run<OrderBookTest>();
+        //BenchmarkDotNet.Running.BenchmarkRunner.Run<OrderBookTest>();
         BenchmarkDotNet.Running.BenchmarkRunner.Run<Benchmark1>();
     }
 }

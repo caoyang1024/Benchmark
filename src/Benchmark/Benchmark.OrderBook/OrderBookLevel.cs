@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Benchmark.OrderBook;
 
-public record struct OrderBookLevel(decimal Price, decimal Quantity) : IComparable<OrderBookLevel>
+public readonly record struct OrderBookLevel(decimal Price, decimal Quantity) : IComparable<OrderBookLevel>
 {
     public decimal Price { get; } = Price;
 
