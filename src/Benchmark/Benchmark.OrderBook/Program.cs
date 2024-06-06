@@ -1,4 +1,6 @@
 ﻿using System;
+using Benchmark.OrderBook.Entities;
+using Benchmark.OrderBook.ListVsDict;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
@@ -8,19 +10,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        OrderBookTest test = new();
-
-        test.Setup();
-
-        test.TestArrayOrderBookInsert();
-        test.TestArrayOrderBookUpdate();
-        var arr = test.TestArrayOrderBookDelete();
-
-        test.TestSortedListOrderBookInsert();
-        test.TestSortedListOrderBookUpdate();
-        var sl = test.TestSortedListOrderBookDelete();
-
         BenchmarkDotNet.Running.BenchmarkRunner.Run<OrderBookTest>();
+        BenchmarkDotNet.Running.BenchmarkRunner.Run<Benchmark1>();
     }
 }
 
@@ -38,6 +29,7 @@ public class OrderBookTest
 
     private readonly ArrayOrderBook _arrayOrderBook = new(Levels);
     private readonly SortedListOrderBook _sortedListOrderBook = new();
+    private readonly AMDOrderBook _amdOrderBook = new();
 
     [GlobalSetup]
     public void Setup()
