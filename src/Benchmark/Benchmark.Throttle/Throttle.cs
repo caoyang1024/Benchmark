@@ -6,19 +6,19 @@ namespace Benchmark.Throttle;
 
 public interface IDateTimeProvider
 {
-    DateTime UtcNow { get; }
+    DateTimeOffset UtcNow { get; }
 }
 
 public class SystemDateTimeProvider : IDateTimeProvider
 {
-    public DateTime UtcNow => DateTime.UtcNow;
+    public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
 }
 
 public sealed class Throttle(TimeSpan window, int limit, IDateTimeProvider dateTimeProvider)
     : IDisposable
 {
-    private readonly TimeSpan _window = TimeSpan.FromMilliseconds(window.TotalMilliseconds / limit);
-    private readonly ConcurrentDictionary<string, (object, Queue<DateTime>)> _lockObjects = new();
+    private readonly TimeSpan _window = TimeSpan.FromTicks(window.Ticks / limit);
+    private readonly ConcurrentDictionary<string, (object, Queue<DateTimeOffset>)> _lockObjects = new();
     private const string DEFAULT_THROTTLE_KEY = "";
 
     public static Throttle Create(int limit)
@@ -49,7 +49,7 @@ public sealed class Throttle(TimeSpan window, int limit, IDateTimeProvider dateT
     private bool TryAcquireInternal(string key)
     {
         var now = dateTimeProvider.UtcNow;
-        (object lockObject, Queue<DateTime> timeStamps) = _lockObjects.GetOrAdd(key, _ => (new object(), new Queue<DateTime>()));
+        (object lockObject, Queue<DateTimeOffset> timeStamps) = _lockObjects.GetOrAdd(key, _ => (new object(), new Queue<DateTimeOffset>()));
 
         lock (lockObject)
         {
@@ -75,5 +75,30 @@ public sealed class Throttle(TimeSpan window, int limit, IDateTimeProvider dateT
     public void Dispose()
     {
         _lockObjects.Clear();
+    }
+}
+
+public sealed class KeyedThrottle
+{
+    private readonly ConcurrentDictionary<TimeSpan, Throttle> _throttles = new();
+    private readonly ConcurrentDictionary<string, Throttle> _keyedThrottles = new();
+
+    public void AddOrUpdate(string key, TimeSpan window, int limit)
+    {
+        var rate = TimeSpan.FromTicks(window.Ticks / limit);
+
+        Throttle throttle = _throttles.GetOrAdd(rate, _ => Throttle.Create(window, limit));
+
+        _keyedThrottles.TryAdd(key, throttle);
+    }
+
+    public bool TryAcquire(string key)
+    {
+        if (_keyedThrottles.TryGetValue(key, out var throttle))
+        {
+            return throttle.TryAcquire(key);
+        }
+
+        throw new InvalidOperationException($"{key} key not found");
     }
 }

@@ -51,12 +51,104 @@ public class ThrottleBenchmark
 
 public class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
-        BenchmarkDotNet.Running.BenchmarkRunner.Run<ThrottleBenchmark>();
+        const int numberOfSymbols = 100;
+        const int limitPerSecond = 100;
+        const int stopCount = limitPerSecond * 20;
+
+        RunThrottle(limitPerSecond, stopCount);
+        await RunKeyedThrottle(numberOfSymbols, limitPerSecond, stopCount);
+
+        //BenchmarkDotNet.Running.BenchmarkRunner.Run<ThrottleBenchmark>();
     }
 
-    public static void Print(IList<DateTimeOffset> timestamps)
+    private static void RunThrottle(int limitPerSecond, int stopCount)
+    {
+        Throttle throttle = Throttle.Create(limitPerSecond);
+
+        var timestamps = new List<DateTimeOffset>();
+
+        while (true)
+        {
+            if (throttle.TryAcquire())
+            {
+                timestamps.Add(DateTimeOffset.UtcNow);
+            }
+
+            if (timestamps.Count >= stopCount)
+            {
+                break;
+            }
+        }
+
+        Print(timestamps);
+    }
+
+    private static async Task RunKeyedThrottle(int numOfSymbols, int limitPerSecond, int stopCount)
+    {
+        KeyedThrottle keyedThrottle = new KeyedThrottle();
+        List<List<(string, DateTimeOffset)>> all = new();
+        object locker = new object();
+
+        for (int i = 0; i < numOfSymbols; i++)
+        {
+            keyedThrottle.AddOrUpdate($"{i}", TimeSpan.FromSeconds(1), limitPerSecond);
+        }
+
+        List<Task> tasks = new();
+
+        for (int i = 0; i < numOfSymbols; i++)
+        {
+            string key = $"{i}";
+
+            tasks.Add(Task.Run(() =>
+            {
+                var timestamps = new List<(string, DateTimeOffset)>();
+
+                while (true)
+                {
+                    if (keyedThrottle.TryAcquire(key))
+                    {
+                        timestamps.Add((key, DateTimeOffset.UtcNow));
+                    }
+
+                    if (timestamps.Count >= stopCount)
+                    {
+                        lock (locker)
+                        {
+                            all.Add(timestamps);
+                        }
+
+                        break;
+                    }
+                }
+            }));
+        }
+
+        await Task.WhenAll(tasks);
+
+        Print(all.SelectMany(x => x));
+    }
+
+    public static void Print(IEnumerable<(string Symbol, DateTimeOffset Time)> timestamps)
+    {
+        foreach (var group in timestamps.GroupBy(x => new
+        {
+            x.Symbol,
+            x.Time.Year,
+            x.Time.Month,
+            x.Time.Day,
+            x.Time.Hour,
+            x.Time.Minute,
+            x.Time.Second
+        }).OrderBy(x => x.Key.Symbol))
+        {
+            Console.WriteLine($"{group.Key} {group.Count()}");
+        }
+    }
+
+    public static void Print(IEnumerable<DateTimeOffset> timestamps)
     {
         foreach (var group in timestamps.GroupBy(x => new
         {
