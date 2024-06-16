@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
@@ -7,7 +6,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.Serializer", "Ben
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.DecimalPlaces", "Benchmark.DecimalPlaces\Benchmark.DecimalPlaces.csproj", "{DB133620-4082-4434-9A54-536F69D96B2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark.OrderBook", "Benchmark.OrderBook\Benchmark.OrderBook.csproj", "{99260398-8573-47C9-8A63-F21A5E9D4013}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.OrderBook", "Benchmark.OrderBook\Benchmark.OrderBook.csproj", "{99260398-8573-47C9-8A63-F21A5E9D4013}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark.Throttle", "Benchmark.Throttle\Benchmark.Throttle.csproj", "{7E3730A1-8605-4F91-829C-10C69B50E362}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +20,10 @@ Global
 		{176A3918-C02C-49C2-9959-72AA1346A7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{176A3918-C02C-49C2-9959-72AA1346A7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{176A3918-C02C-49C2-9959-72AA1346A7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E3730A1-8605-4F91-829C-10C69B50E362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E3730A1-8605-4F91-829C-10C69B50E362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E3730A1-8605-4F91-829C-10C69B50E362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E3730A1-8605-4F91-829C-10C69B50E362}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DB133620-4082-4434-9A54-536F69D96B2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DB133620-4082-4434-9A54-536F69D96B2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB133620-4082-4434-9A54-536F69D96B2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
