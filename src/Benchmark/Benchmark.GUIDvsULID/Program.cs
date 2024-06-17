@@ -25,6 +25,6 @@ public class Test
     [Benchmark]
     public string GenerateUlid()
     {
-        return UlidHelper.GetGuid();
+        return UlidHelper.GetUlid();
     }
 }

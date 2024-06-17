@@ -15,20 +15,20 @@ public static class UlidHelper
     private const byte PlusByte = (byte)'+';
 
     /// <summary>
-    /// get a base64 encoded guid
+    /// get a base64 encoded ulid
     /// </summary>
     /// <returns></returns>
-    public static string GetGuid()
+    public static string GetUlid()
     {
         return ToBase64(Ulid.NewUlid());
     }
 
-    private static string ToBase64(Ulid guid)
+    private static string ToBase64(Ulid ulid)
     {
         Span<byte> bytes = stackalloc byte[16];
         Span<byte> base64Chars = stackalloc byte[24];
 
-        MemoryMarshal.TryWrite(bytes, in guid);
+        MemoryMarshal.TryWrite(bytes, in ulid);
 
         Base64.EncodeToUtf8(bytes, base64Chars, out _, out _);
 
@@ -74,5 +74,19 @@ public static class UlidHelper
     public static Ulid FromBase64(string base64)
     {
         return FromBase64(base64.AsSpan());
+    }
+
+    public static string GetUlidPlain()
+    {
+        var ulid = Ulid.NewUlid();
+
+        return ulid.ToBase64();
+    }
+
+    public static Ulid FromBase64Plain(string base64)
+    {
+        var bytes = Convert.FromBase64String(base64);
+
+        return new Ulid(bytes);
     }
 }
