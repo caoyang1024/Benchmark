@@ -8,7 +8,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.DecimalPlaces", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.OrderBook", "Benchmark.OrderBook\Benchmark.OrderBook.csproj", "{99260398-8573-47C9-8A63-F21A5E9D4013}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark.Throttle", "Benchmark.Throttle\Benchmark.Throttle.csproj", "{7E3730A1-8605-4F91-829C-10C69B50E362}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.Throttle", "Benchmark.Throttle\Benchmark.Throttle.csproj", "{7E3730A1-8605-4F91-829C-10C69B50E362}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark.GUIDvsULID", "Benchmark.GUIDvsULID\Benchmark.GUIDvsULID.csproj", "{7650653E-F80E-4F2C-84CC-C690E148AA6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{176A3918-C02C-49C2-9959-72AA1346A7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{176A3918-C02C-49C2-9959-72AA1346A7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{176A3918-C02C-49C2-9959-72AA1346A7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7650653E-F80E-4F2C-84CC-C690E148AA6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7650653E-F80E-4F2C-84CC-C690E148AA6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7650653E-F80E-4F2C-84CC-C690E148AA6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7650653E-F80E-4F2C-84CC-C690E148AA6F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7E3730A1-8605-4F91-829C-10C69B50E362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E3730A1-8605-4F91-829C-10C69B50E362}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E3730A1-8605-4F91-829C-10C69B50E362}.Release|Any CPU.ActiveCfg = Release|Any CPU
