@@ -6,7 +6,7 @@ namespace Benchmark.Serializer.Serializer;
 
 public class NewtonJsonSerializer : ISerializer
 {
-    private readonly JsonSerializer _serializer = JsonSerializer.Create(new JsonSerializerSettings()
+    private readonly JsonSerializer _serializer = JsonSerializer.Create(new JsonSerializerSettings
     {
         TypeNameHandling = TypeNameHandling.All
     });

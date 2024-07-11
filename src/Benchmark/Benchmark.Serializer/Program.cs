@@ -12,7 +12,7 @@ public class Program
         BenchmarkDotNet.Running.BenchmarkRunner.Run<Benchmark>();
     }
 
-    [SimpleJob(RuntimeMoniker.Net60)]
+    [SimpleJob(RuntimeMoniker.Net80)]
     [MemoryDiagnoser]
     public class Benchmark
     {
@@ -50,8 +50,8 @@ public class Program
                 Ask = 1.2m,
                 BidVolume = 1.3m,
                 AskVolume = 1.4m,
-                BidPrice = 1.5,
-                AskPrice = 1.6,
+                BidPrice = 1.5m,
+                AskPrice = 1.6m,
                 Text = "Hello",
                 Metadata = typeof(LargeMessage).AssemblyQualifiedName
             };
