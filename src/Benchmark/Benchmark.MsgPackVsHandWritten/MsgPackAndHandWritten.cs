@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using K4os.Compression.LZ4;
 using System;
 
 namespace Benchmark.MsgPackVsHandWritten;
@@ -32,11 +31,13 @@ public class MsgPackAndHandWritten
             AskVolume = 210.987m,
             Mid = 400.789m,
             DepthMarketId = 67890,
-            Model = "TestModel"
+            Model = "TestModel",
+            EventReceiveTimeEpoch = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            EventSentTimeEpoch = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
         };
     }
 
-    [Benchmark]
+    // [Benchmark]
     public byte[] ToMsgPackBytes()
     {
         return MessagePack.MessagePackSerializer.Serialize(_price.GetType(), _price,
@@ -45,27 +46,26 @@ public class MsgPackAndHandWritten
 
     private static readonly byte[] Buffer = new byte[2048];
 
-    [Benchmark]
-    public byte[] ToHandWrittenBytes0()
+    // [Benchmark]
+    public byte[] ToHandWrittenBytes()
     {
         return _price.ToBytes();
     }
 
     [Benchmark]
-    public Span<byte> ToHandWrittenBytes1()
+    public PriceInfo FromMsgPackBytes()
     {
-        var data = _price.ToBytes();
+        var bytes = ToMsgPackBytes();
 
-        int length = LZ4Codec.Encode(data, 0, data.Length, Buffer, 0, Buffer.Length);
-
-        return Buffer.AsSpan(0, length);
+        return MessagePack.MessagePackSerializer.Deserialize<PriceInfo>(bytes,
+            MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
     }
 
     [Benchmark]
-    public byte[] ToHandWrittenBytes2()
+    public PriceInfo FromHandWrittenBytes()
     {
-        var data = _price.ToBytes();
+        var bytes = ToHandWrittenBytes();
 
-        return LZ4Pickler.Pickle(data);
+        return PriceInfo.FromBytes(bytes);
     }
 }

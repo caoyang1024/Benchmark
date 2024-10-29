@@ -9,17 +9,23 @@ public static class ByteExt
     public static void WriteString(this Span<byte> span, string text, ref int offset)
     {
         BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(offset, 2), (ushort)text.Length);
+
+        offset += 2;
+
         Encoding.UTF8.GetBytes(text, span.Slice(offset, text.Length));
 
-        offset += 2 + text.Length;
+        offset += text.Length;
     }
 
     public static string ReadString(this ReadOnlySpan<byte> span, ref int offset)
     {
         ushort length = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(offset, 2));
+
+        offset += 2;
+
         string text = Encoding.UTF8.GetString(span.Slice(offset, length));
 
-        offset += 2 + text.Length;
+        offset += text.Length;
 
         return text;
     }
@@ -28,18 +34,24 @@ public static class ByteExt
     {
         // Convert Ticks to bytes (8 bytes) and copy to span
         BinaryPrimitives.WriteInt64LittleEndian(span.Slice(offset, 8), time.Ticks);
-        // Convert Offset to minutes and then to bytes (2 bytes) and copy to span
-        BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(offset + 8, 2), (ushort)time.Offset.TotalMinutes);
 
-        offset += 10;
+        offset += 8;
+
+        // Convert Offset to minutes and then to bytes (2 bytes) and copy to span
+        BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(offset, 2), (ushort)time.Offset.TotalMinutes);
+
+        offset += 2;
     }
 
     public static DateTimeOffset ReadDateTimeOffset(this ReadOnlySpan<byte> span, ref int offset)
     {
         long ticks = BinaryPrimitives.ReadInt64LittleEndian(span.Slice(offset, 8));
-        TimeSpan offsetTime = TimeSpan.FromMinutes(BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(offset + 8, 2)));
 
-        offset += 10;
+        offset += 8;
+
+        TimeSpan offsetTime = TimeSpan.FromMinutes(BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(offset, 2)));
+
+        offset += 2;
 
         return new DateTimeOffset(ticks, offsetTime);
     }
@@ -98,6 +110,22 @@ public static class ByteExt
         bool value = span[offset] == 1;
 
         offset++;
+
+        return value;
+    }
+
+    public static void WriteLong(this Span<byte> span, long value, ref int offset)
+    {
+        BinaryPrimitives.WriteInt64LittleEndian(span.Slice(offset, 8), value);
+
+        offset += 8;
+    }
+
+    public static long ReadLong(this ReadOnlySpan<byte> span, ref int offset)
+    {
+        long value = BinaryPrimitives.ReadInt64LittleEndian(span.Slice(offset, 8));
+
+        offset += 8;
 
         return value;
     }

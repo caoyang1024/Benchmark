@@ -2,67 +2,77 @@
 
 namespace Benchmark.MsgPackVsHandWritten;
 
-public sealed partial class PriceInfo
+public sealed partial class PriceInfo 
 {
+    public const string TopicPrefix = $"{nameof(PriceInfo)}.";
+
+    public string Topic => $"{TopicPrefix}{MarketId}";
+
+    public string FullName => $"{nameof(PriceInfo)}:{MarketId}:{Symbol}:{FeederSource}";
+
+    public long? EventSentTimeEpoch { get; set; }
+
+    public long? EventReceiveTimeEpoch { get; set; }
+
     /// <summary>
     /// 当从LP收到报价时，PE会给每个报价一个唯一的ID
     /// </summary>
-    public string CorrelationId { get; init; }
+    public string CorrelationId { get; set; } = string.Empty;
 
     /// <summary>
     /// LP报价的发生时间 - 这个时间一般是LP提供的时间
     /// 这个时间只设置一次，不会被修改
     /// </summary>
-    public DateTimeOffset LPOutTime { get; init; }
+    public DateTimeOffset LPOutTime { get; set; }
 
     /// <summary>
     /// PE系统从LP拿到报价的时间
     /// 这个时间只设置一次，不会被修改
     /// </summary>
-    public DateTimeOffset SourceInTime { get; init; }
+    public DateTimeOffset SourceInTime { get; set; }
 
     /// <summary>
     /// 每个节点收到报价的时间
     /// 这个时间会被每个节点修改
     /// </summary>
-    public DateTimeOffset ServiceInTime { get; init; }
+    public DateTimeOffset ServiceInTime { get; set; }
 
     /// <summary>
     /// PE系统每个节点发出的时间
     /// 这个时间会被每个节点修改
     /// </summary>
-    public DateTimeOffset ServiceOutTime { get; init; }
+    public DateTimeOffset ServiceOutTime { get; set; }
 
-    public int MarketId { get; init; }
+    public int MarketId { get; set; }
 
-    public string Symbol { get; init; }
+    public string Symbol { get; set; } = string.Empty;
 
-    public string FeederSource { get; init; }
+    public string FeederSource { get; set; } = string.Empty;
 
-    public decimal Bid { get; init; }
+    public decimal Bid { get; set; }
 
-    public decimal? BidVolume { get; init; }
+    public decimal? BidVolume { get; set; }
 
-    public decimal Ask { get; init; }
+    public decimal Ask { get; set; }
 
-    public decimal? AskVolume { get; init; }
+    public decimal? AskVolume { get; set; }
 
-    public decimal Mid { get; init; }
+    public decimal Mid { get; set; }
 
-    public int? DepthMarketId { get; init; }
+    public int? DepthMarketId { get; set; }
 
-    public string Model { get; init; }
-
-    public string FullName => $"{nameof(PriceInfo)}:{MarketId}:{Symbol}:{FeederSource}";
+    public string Model { get; set; } = string.Empty;
 }
 
 public sealed partial class PriceInfo
 {
     public byte[] ToBytes()
     {
-        int totalLength = 104 + CorrelationId.Length + Symbol.Length + FeederSource.Length
+        int totalLength = 104 +
+                          CorrelationId.Length + Symbol.Length + FeederSource.Length
                           + (BidVolume.HasValue ? 16 : 1) + (AskVolume.HasValue ? 16 : 1)
-                          + (DepthMarketId.HasValue ? 8 : 1) + Model.Length;
+                          + (DepthMarketId.HasValue ? 8 : 1) + Model.Length
+                          + (EventSentTimeEpoch.HasValue ? 8 : 1) + (EventReceiveTimeEpoch.HasValue ? 8 : 1);
 
         Span<byte> bytes = stackalloc byte[totalLength];
 
@@ -95,6 +105,16 @@ public sealed partial class PriceInfo
             bytes.WriteInt(DepthMarketId.Value, ref offset);
         }
         bytes.WriteString(Model, ref offset);
+        bytes.WriteBool(EventSentTimeEpoch.HasValue, ref offset);
+        if (EventSentTimeEpoch.HasValue)
+        {
+            bytes.WriteLong(EventSentTimeEpoch.Value, ref offset);
+        }
+        bytes.WriteBool(EventReceiveTimeEpoch.HasValue, ref offset);
+        if (EventReceiveTimeEpoch.HasValue)
+        {
+            bytes.WriteLong(EventReceiveTimeEpoch.Value, ref offset);
+        }
 
         return bytes.ToArray();
     }
@@ -118,6 +138,8 @@ public sealed partial class PriceInfo
         decimal mid = bytes.ReadDecimal(ref offset);
         int? depthMarketId = bytes.ReadBool(ref offset) ? bytes.ReadInt(ref offset) : null;
         string model = bytes.ReadString(ref offset);
+        long? sentTime = bytes.ReadBool(ref offset) ? bytes.ReadLong(ref offset) : null;
+        long? receiveTime = bytes.ReadBool(ref offset) ? bytes.ReadLong(ref offset) : null;
 
         return new PriceInfo
         {
@@ -135,7 +157,9 @@ public sealed partial class PriceInfo
             AskVolume = askVol,
             Mid = mid,
             DepthMarketId = depthMarketId,
-            Model = model
+            Model = model,
+            EventSentTimeEpoch = sentTime,
+            EventReceiveTimeEpoch = receiveTime
         };
     }
 }
